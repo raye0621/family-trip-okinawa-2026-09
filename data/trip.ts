@@ -18,6 +18,7 @@ export type TripDay = {
   weekday: string;
   theme: string;
   lodging: string;
+  summaryPlaces: string[];
   stops: TripStop[];
   privateNotes: PrivateNote[];
   privateHighlightTerms?: string[];
@@ -42,7 +43,7 @@ export type Trip = {
 };
 
 export const trip: Trip = {
-  title: '沖繩家族旅行',
+  title: '快樂的家沖繩之旅',
   subtitle: '五天四夜，一起去看海',
   dateRange: '2026.09.14 — 09.18',
   version: '09/12 行程版',
@@ -53,8 +54,9 @@ export const trip: Trip = {
       date: '09.14',
       isoDate: '2026-09-14',
       weekday: '一',
-      theme: '抵達沖繩＋美國村',
+      theme: '🌊 抵達沖繩，前往美國村',
       lodging: '沖繩索爾鎮公寓式酒店',
+      summaryPlaces: ['那霸機場', '糸滿魚市場', '美國村', 'AEON 北谷'],
       stops: [
         { time: '07:45', name: '搭計程車前往機場', note: '預計 10:00 起飛。' },
         { time: '13:00', name: '抵達那霸機場', note: '依序處理入境審查、領行李與海關。', important: true },
@@ -80,8 +82,9 @@ export const trip: Trip = {
       date: '09.15',
       isoDate: '2026-09-15',
       weekday: '二',
-      theme: '美麗海水族館日',
+      theme: '🐋 美麗海水族館，鯨鯊！',
       lodging: '沖繩索爾鎮公寓式酒店',
+      summaryPlaces: ['美麗海水族館', 'Kaito 麵包', '許田休息站', '萬座毛', '美國村'],
       stops: [
         { time: '07:00–08:00', name: '買沖繩飯糰＋早餐', note: '飯糰 07:00 開門，並作為水族館行程的午餐。' },
         { time: '08:00–09:30', name: '開車前往美麗海水族館', note: '預留上廁所與塞車緩衝，抓 90 分鐘。', highlightTerms: ['美麗海水族館'] },
@@ -120,8 +123,9 @@ export const trip: Trip = {
       date: '09.16',
       isoDate: '2026-09-16',
       weekday: '三',
-      theme: '購物＋首里散步＋移動那霸',
+      theme: '🏯 最大百貨公司 + 十年首里城',
       lodging: '鶴の宿 那覇',
+      summaryPlaces: ['永旺夢樂城', '首里城', '達摩寺', '國際通'],
       stops: [
         { time: '08:00–09:00', name: '民宿自煮早餐', note: '前一天買麵包與食材；時間充裕可買莓果碗。' },
         { time: '09:00–10:00', name: '整理行李、休息、退房', note: '最晚 11:00 退房，目標 10:00 離開。' },
@@ -154,8 +158,9 @@ export const trip: Trip = {
       date: '09.17',
       isoDate: '2026-09-17',
       weekday: '四',
-      theme: '沖繩世界＋Costco',
+      theme: '🌺 沖繩世界玉泉洞，燒肉之路',
       lodging: '鶴の宿 那覇',
+      summaryPlaces: ['沖繩世界', '玉泉洞', 'Costco 南城', '國際通'],
       stops: [
         { time: '07:30–08:15', name: '民宿自煮早餐', note: 'Day 3 晚上先買食材；廚房不適合就改外食或便利商店。' },
         { time: '08:15–08:30', name: '整理、準備出發', note: '目標 08:30 前離開。' },
@@ -188,8 +193,9 @@ export const trip: Trip = {
       date: '09.18',
       isoDate: '2026-09-18',
       weekday: '五',
-      theme: '最後採買＋回高雄',
+      theme: '🧳 最後採買，準備平安回家',
       lodging: '回家',
+      summaryPlaces: ['ASHIBINAA', '那霸機場', '高雄'],
       stops: [
         { time: '08:00–08:45', name: '起床、整理最後行李', note: '確認藥妝、液體與噴霧等託運物品。' },
         { time: '08:45–09:15', name: '早餐、Check-out', note: '巡房確認冰箱、浴室、插座與床下沒有遺漏。' },

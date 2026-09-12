@@ -7,11 +7,11 @@ const githubBasePath = process.env.GITHUB_ACTIONS === 'true' && repositoryName &
   : '';
 
 export const metadata: Metadata = {
-  title: '沖繩家族旅行 2026',
-  description: '2026 年沖繩家族旅行的隨身行程與重要資訊',
+  title: '快樂的家沖繩之旅 2026',
+  description: '2026 年快樂的家沖繩之旅隨身行程與重要資訊',
   manifest: '/manifest.webmanifest',
   icons: { icon: `${githubBasePath}/favicon.svg`, apple: `${githubBasePath}/favicon.svg` },
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: '沖繩旅行' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: '快樂的家沖繩之旅' },
 };
 
 export const viewport: Viewport = { themeColor: '#0f8399', width: 'device-width', initialScale: 1 };

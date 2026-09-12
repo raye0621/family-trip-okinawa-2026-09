@@ -4,8 +4,8 @@ export const dynamic = 'force-static';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '沖繩家族旅行 2026',
-    short_name: '沖繩旅行',
+    name: '快樂的家沖繩之旅 2026',
+    short_name: '快樂的家沖繩之旅',
     description: '家人的五天沖繩隨身行程與重要資訊',
     start_url: '.',
     display: 'standalone',

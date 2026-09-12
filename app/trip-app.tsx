@@ -12,6 +12,22 @@ const quickLinks = [
   { label: '小冊閱讀', icon: '冊', href: './booklet/', tone: 'green' },
 ];
 
+function getDateKey(date: Date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? '';
+  return `${value('year')}-${value('month')}-${value('day')}`;
+}
+
+function daysBetween(from: string, to: string) {
+  const dayInMilliseconds = 24 * 60 * 60 * 1000;
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / dayInMilliseconds);
+}
+
 function highlightFirstMentions(text: string, terms: string[], seen: Set<string>) {
   if (!terms.length) return text;
 
@@ -46,26 +62,53 @@ function PrivateNotesList({ day }: { day: Trip['days'][number] }) {
 export function TripApp({ trip }: { trip: Trip }) {
   const [ownerMode, setOwnerMode] = useState(false);
   const [copied, setCopied] = useState('');
+  const [previewDay, setPreviewDay] = useState<number | null>(null);
 
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
-  const activeDay = useMemo(() => trip.days.find((day) => day.isoDate === today), [today, trip.days]);
+  const today = getDateKey(new Date());
+  const activeDay = useMemo(
+    () => previewDay ? trip.days.find((day) => day.day === previewDay) : trip.days.find((day) => day.isoDate === today),
+    [previewDay, today, trip.days],
+  );
   const [openDays, setOpenDays] = useState<number[]>(() => activeDay ? [activeDay.day] : []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('owner') === '1') localStorage.setItem('okinawa-owner-mode', '1');
     if (params.get('family') === '1') localStorage.removeItem('okinawa-owner-mode');
-    const syncMode = window.setTimeout(() => setOwnerMode(localStorage.getItem('okinawa-owner-mode') === '1'), 0);
+    const requestedPreviewDay = Number(params.get('previewDay'));
+    const syncMode = window.setTimeout(() => {
+      setOwnerMode(localStorage.getItem('okinawa-owner-mode') === '1');
+      if (trip.days.some((day) => day.day === requestedPreviewDay)) {
+        setPreviewDay(requestedPreviewDay);
+        setOpenDays((current) => current.includes(requestedPreviewDay) ? current : [...current, requestedPreviewDay].slice(-2));
+      }
+    }, 0);
     return () => window.clearTimeout(syncMode);
-  }, []);
+  }, [trip.days]);
 
-  const tripStarted = today >= trip.days[0].isoDate;
   const tripEnded = today > trip.days[trip.days.length - 1].isoDate;
+  const overviewDay = activeDay ?? (tripEnded ? trip.days[trip.days.length - 1] : trip.days[0]);
+  const overviewState = activeDay ? 'today' : tripEnded ? 'complete' : 'upcoming';
+  const overviewKicker = activeDay ? '今日摘要' : tripEnded ? 'JOURNEY COMPLETE' : 'TRIP STARTS SOON';
+  const overviewTitle = activeDay
+    ? activeDay.theme
+    : tripEnded ? '旅程完成，平安歸來 ～' : `距離出發還有 ${Math.max(0, daysBetween(today, trip.days[0].isoDate))} 天`;
+  const overviewIntro = activeDay
+    ? ''
+    : tripEnded ? '五天四夜的沖繩家族旅行' : `第一天｜${overviewDay.theme.replaceAll('＋', '・')}`;
+  const overviewCta = activeDay ? '今日詳細' : tripEnded ? '回顧行程' : '看第一天';
 
   function updateOpenDay(day: number, isOpen: boolean) {
     setOpenDays((current) => {
       const otherOpenDays = current.filter((openDay) => openDay !== day);
       return isOpen ? [...otherOpenDays, day].slice(-2) : otherOpenDays;
+    });
+  }
+
+  function showOverviewDay() {
+    setOpenDays((current) => current.includes(overviewDay.day) ? current : [...current, overviewDay.day].slice(-2));
+    window.requestAnimationFrame(() => {
+      document.getElementById(`day-${overviewDay.day}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -79,10 +122,6 @@ export function TripApp({ trip }: { trip: Trip }) {
     localStorage.removeItem('okinawa-owner-mode');
     setOwnerMode(false);
   }
-
-  const statusTitle = activeDay
-    ? `今天是 Day ${activeDay.day}｜${activeDay.theme}`
-    : tripEnded ? '旅行平安完成，歡迎回家' : tripStarted ? '今天是行程間的休息日' : '準備出發去沖繩';
 
   return (
     <>
@@ -98,9 +137,19 @@ export function TripApp({ trip }: { trip: Trip }) {
       </section>
 
       <div className="shell page-content">
-        <section className="status-card" aria-labelledby="status-title">
-          <div><p className="section-kicker">TRIP STATUS</p><h2 id="status-title">{statusTitle}</h2><p>{activeDay ? `今晚住宿：${activeDay.lodging}` : '行程、住宿與重要提醒都已整理在這裡。'}</p></div>
-          <span className="status-badge">{trip.version}</span>
+        <section className={`today-overview ${overviewState}`} aria-labelledby="overview-title">
+          <div className="overview-orbit" aria-hidden="true" />
+          <div className="overview-heading">
+            <p className="overview-kicker">{overviewKicker}</p>
+            <span className="overview-day">{overviewDay.date.replaceAll('.', '')} DAY{overviewDay.day}</span>
+          </div>
+          <h2 id="overview-title">{overviewTitle}</h2>
+          {overviewIntro && <p className="overview-intro">{overviewIntro}</p>}
+          <ul className="overview-places" aria-label="今日主要地點">
+            {overviewDay.summaryPlaces.map((place) => <li key={place}>{place}</li>)}
+          </ul>
+          <button className="overview-cta" type="button" onClick={showOverviewDay}>{overviewCta}<span aria-hidden="true">→</span></button>
+          {ownerMode && <div className="overview-meta"><span>{trip.version}</span><span>最後更新 {trip.lastUpdated}</span></div>}
         </section>
 
         <nav className="quick-grid" aria-label="旅行資訊快速入口">
@@ -113,6 +162,7 @@ export function TripApp({ trip }: { trip: Trip }) {
             {trip.days.map((day) => (
               <article
                 className={`day-card ${activeDay?.day === day.day ? 'is-today' : ''} ${openDays.includes(day.day) ? 'is-open' : ''}`}
+                id={`day-${day.day}`}
                 key={day.day}
               >
                 <button
@@ -134,7 +184,7 @@ export function TripApp({ trip }: { trip: Trip }) {
                         <article className={stop.important ? 'important-stop' : ''} key={`${stop.time}-${stop.name}-${index}`}>
                           <time>{stop.time}</time>
                           <div className="stop-copy">
-                            <div className="stop-title"><h4>{highlightFirstMentions(stop.name, stop.highlightTerms ?? [], new Set())}</h4>{stop.badge && <span>{stop.badge}</span>}</div>
+                            <div className="stop-title"><h4>{highlightFirstMentions(stop.name, stop.highlightTerms ?? [], new Set())}</h4>{stop.badge && <span className="stop-badge">{stop.badge}</span>}</div>
                             {stop.nameJa && <p className="japanese-name">{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}
                             {stop.navigationName && <button className="copy-button" type="button" onClick={() => copyNavigation(stop.navigationName!)}>複製導航名稱</button>}
                           </div>
