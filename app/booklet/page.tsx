@@ -44,7 +44,7 @@ export default function BookletPage() {
         </section>
       ))}
 
-      <a className="back-to-app" href="/">← 回到手機版</a>
+      <a className="back-to-app" href="../">← 回到手機版</a>
     </main>
   );
 }

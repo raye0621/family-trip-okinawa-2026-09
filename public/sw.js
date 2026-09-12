@@ -1,8 +1,20 @@
-const CACHE_NAME = 'okinawa-family-trip-v1';
-const APP_SHELL = ['/', '/booklet', '/manifest.webmanifest', '/favicon.svg'];
+const CACHE_NAME = 'okinawa-family-trip-v2';
+const SCOPE = self.registration.scope;
+const APP_SHELL = ['', 'booklet/', 'manifest.webmanifest', 'favicon.svg'].map((path) => new URL(path, SCOPE).href);
+
+async function cacheAppShell() {
+  const cache = await caches.open(CACHE_NAME);
+  await cache.addAll(APP_SHELL);
+  const home = await fetch(new URL('', SCOPE));
+  const html = await home.text();
+  const assets = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
+    .map((match) => new URL(match[1], SCOPE).href)
+    .filter((url) => url.includes('/_next/'));
+  await cache.addAll([...new Set(assets)]);
+}
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(cacheAppShell());
   self.skipWaiting();
 });
 
@@ -25,6 +37,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match(new URL('', SCOPE))))
   );
 });

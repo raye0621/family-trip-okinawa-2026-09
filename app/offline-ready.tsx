@@ -12,7 +12,7 @@ export function OfflineReady() {
     window.addEventListener('offline', update);
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+      navigator.serviceWorker.register('./sw.js').catch(() => undefined);
     }
 
     return () => {
