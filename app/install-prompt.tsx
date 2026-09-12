@@ -66,7 +66,7 @@ export function InstallPrompt() {
     <aside className="install-prompt" aria-label="安裝旅遊 App">
       {/* A plain image keeps the relative URL compatible with the GitHub Pages base path. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="./icon-192.png" alt="" width="48" height="48" />
+      <img src="./app-icon-v2-192.png" alt="" width="48" height="48" />
       <div className="install-prompt-copy">
         <strong>加入桌面，旅途中更方便</strong>
         <span>

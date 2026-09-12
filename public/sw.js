@@ -1,12 +1,13 @@
-const CACHE_NAME = 'okinawa-family-trip-v3';
+const CACHE_NAME = 'okinawa-family-trip-v4';
 const SCOPE = self.registration.scope;
 const APP_SHELL = [
   '',
   'booklet/',
   'manifest.webmanifest',
-  'icon-192.png',
-  'icon-512.png',
-  'apple-touch-icon.png',
+  'favicon-v2.png',
+  'app-icon-v2-192.png',
+  'app-icon-v2-512.png',
+  'apple-touch-icon-v2.png',
 ].map((path) => new URL(path, SCOPE).href);
 
 async function cacheAppShell() {

@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   icons: {
     icon: [
-      { url: `${githubBasePath}/icon-192.png`, sizes: '192x192', type: 'image/png' },
-      { url: `${githubBasePath}/icon-512.png`, sizes: '512x512', type: 'image/png' },
+      { url: `${githubBasePath}/favicon-v2.png`, sizes: '64x64', type: 'image/png' },
+      { url: `${githubBasePath}/app-icon-v2-192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${githubBasePath}/app-icon-v2-512.png`, sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: `${githubBasePath}/apple-touch-icon.png`, sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: `${githubBasePath}/apple-touch-icon-v2.png`, sizes: '180x180', type: 'image/png' }],
   },
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: '快樂的家沖繩之旅' },
 };
