@@ -10,7 +10,13 @@ export const metadata: Metadata = {
   title: '快樂的家沖繩之旅 2026',
   description: '2026 年快樂的家沖繩之旅隨身行程與重要資訊',
   manifest: '/manifest.webmanifest',
-  icons: { icon: `${githubBasePath}/favicon.svg`, apple: `${githubBasePath}/favicon.svg` },
+  icons: {
+    icon: [
+      { url: `${githubBasePath}/icon-192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${githubBasePath}/icon-512.png`, sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: `${githubBasePath}/apple-touch-icon.png`, sizes: '180x180', type: 'image/png' }],
+  },
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: '快樂的家沖繩之旅' },
 };
 
