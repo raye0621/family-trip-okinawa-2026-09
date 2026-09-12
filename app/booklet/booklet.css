@@ -1,0 +1,36 @@
+.booklet { background:#ddd8cb; padding:28px 0 80px; }
+.book-page { position:relative; overflow:hidden; width:176mm; min-height:250mm; margin:0 auto 24px; padding:18mm 16mm; background:#fbf8ef; box-shadow:0 16px 44px rgba(30,45,45,.18); page-break-after:always; }
+.cover { display:flex; flex-direction:column; justify-content:space-between; color:#fff; background:linear-gradient(150deg,#0e8da4,#086579); }
+.cover::before { content:""; position:absolute; inset:auto -20mm -35mm auto; width:110mm; height:110mm; border:1px solid rgba(255,255,255,.25); border-radius:50%; }
+.cover-sun { position:absolute; right:-14mm; bottom:-25mm; width:70mm; height:70mm; border-radius:50%; background:#f1bd55; }
+.cover>p { font-size:10pt; font-weight:800; letter-spacing:.22em; }
+.cover h1 { margin:0; font-size:43pt; line-height:1.08; letter-spacing:-.04em; }
+.cover-subtitle { font-size:14pt; letter-spacing:.12em; opacity:.85; }
+.cover>strong { position:relative; font-size:13pt; letter-spacing:.14em; }
+.book-page header>p,.overview header p { margin:0 0 3mm; color:#0f8399; font-size:8pt; font-weight:800; letter-spacing:.2em; }
+.book-page h2 { margin:0; font-size:24pt; }
+.overview-list { display:grid; gap:4mm; margin-top:14mm; }
+.overview-list article { display:grid; grid-template-columns:18mm 1fr; align-items:center; gap:6mm; padding:5mm; border-bottom:.3mm solid rgba(24,52,58,.16); }
+.book-day { display:grid; place-items:center; width:17mm; height:17mm; border-radius:5mm; color:white; background:#0f8399; }
+.book-day span { font-size:5pt; letter-spacing:.15em; }.book-day strong { font-size:16pt; line-height:1; }
+.overview-list p { margin:0 0 1.5mm; color:#667b7f; font-size:8pt; }.overview-list h3 { margin:0 0 1mm; font-size:13pt; }.overview-list article>div>span { color:#667b7f; font-size:8pt; }
+.overview aside { margin-top:13mm; padding:5mm; border-radius:4mm; color:#536b70; background:#e4f1ef; font-size:9pt; }
+.day-page { display:flex; flex-direction:column; }
+.day-page>header { display:flex; align-items:center; gap:8mm; padding-bottom:8mm; border-bottom:.4mm solid rgba(24,52,58,.15); }
+.large-day { display:grid; place-items:center; width:24mm; height:24mm; border-radius:8mm; color:#fff; background:#ef735f; font-size:22pt; font-weight:800; }.large-day span { font-size:6pt; letter-spacing:.15em; }
+.day-page header p { margin:0 0 2mm; color:#667b7f; font-size:9pt; font-weight:700; }
+.empty-content { display:grid; place-items:center; align-content:center; flex:1; padding:20mm; text-align:center; }.empty-content span { color:#0f8399; font-size:22pt; }.empty-content h3 { margin:7mm 0 2mm; font-size:18pt; }.empty-content p { max-width:85mm; color:#667b7f; font-size:10pt; line-height:1.8; }
+.book-timeline { display:grid; gap:6mm; margin-top:12mm; }.book-timeline article { display:grid; grid-template-columns:20mm 1fr; gap:6mm; }.book-timeline time { color:#0f8399; font-weight:800; }.book-timeline h3 { margin:0 0 1mm; }.book-timeline p { margin:1mm 0; color:#667b7f; font-size:9pt; }
+.day-page footer { margin-top:auto; display:flex; justify-content:space-between; color:#667b7f; font-size:7pt; letter-spacing:.1em; }
+.back-to-app { position:fixed; right:22px; bottom:22px; padding:11px 16px; border-radius:999px; color:#fff; background:#18343a; box-shadow:0 8px 28px rgba(0,0,0,.24); font-size:13px; font-weight:800; }
+@page { size:B5 portrait; margin:0; }
+@media print {
+  .booklet { padding:0; background:#fff; }
+  .book-page { width:176mm; height:250mm; min-height:250mm; margin:0; box-shadow:none; }
+  .back-to-app { display:none; }
+}
+@media screen and (max-width:760px) {
+  .booklet { padding:0 0 70px; }
+  .book-page { width:100%; min-height:142vw; margin-bottom:12px; padding:11vw 9vw; }
+  .cover h1 { font-size:12vw; }
+}
