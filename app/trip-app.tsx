@@ -9,12 +9,47 @@ const quickLinks = [
   { label: '每日行程', icon: '旅', href: '#days', tone: 'coral' },
   { label: '住宿資訊', icon: '宿', href: '#lodging', tone: 'blue' },
   { label: '重要提醒', icon: '醒', href: '#reminders', tone: 'yellow' },
-  { label: 'B5 小冊', icon: '冊', href: './booklet/', tone: 'green' },
+  { label: '小冊閱讀', icon: '冊', href: './booklet/', tone: 'green' },
 ];
+
+function highlightFirstMentions(text: string, terms: string[], seen: Set<string>) {
+  if (!terms.length) return text;
+
+  const escapedTerms = terms
+    .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'g');
+
+  return text.split(pattern).map((part, index) => {
+    if (!terms.includes(part) || seen.has(part)) return part;
+    seen.add(part);
+    return <span className="name-highlight" key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
+function PrivateNotesList({ day }: { day: Trip['days'][number] }) {
+  const seen = new Set<string>();
+  const terms = day.privateHighlightTerms ?? [];
+
+  return (
+    <div className="private-list">
+      {day.privateNotes.map((note, index) => (
+        <article key={`${note.situation}-${index}`}>
+          <strong>{highlightFirstMentions(note.situation, terms, seen)}</strong>
+          <p>{highlightFirstMentions(note.action, terms, seen)}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
 
 export function TripApp({ trip }: { trip: Trip }) {
   const [ownerMode, setOwnerMode] = useState(false);
   const [copied, setCopied] = useState('');
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
+  const activeDay = useMemo(() => trip.days.find((day) => day.isoDate === today), [today, trip.days]);
+  const [openDays, setOpenDays] = useState<number[]>(() => activeDay ? [activeDay.day] : []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,10 +59,15 @@ export function TripApp({ trip }: { trip: Trip }) {
     return () => window.clearTimeout(syncMode);
   }, []);
 
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Taipei' });
-  const activeDay = useMemo(() => trip.days.find((day) => day.isoDate === today), [today, trip.days]);
   const tripStarted = today >= trip.days[0].isoDate;
   const tripEnded = today > trip.days[trip.days.length - 1].isoDate;
+
+  function updateOpenDay(day: number, isOpen: boolean) {
+    setOpenDays((current) => {
+      const otherOpenDays = current.filter((openDay) => openDay !== day);
+      return isOpen ? [...otherOpenDays, day].slice(-2) : otherOpenDays;
+    });
+  }
 
   async function copyNavigation(value: string) {
     await navigator.clipboard.writeText(value);
@@ -68,46 +108,86 @@ export function TripApp({ trip }: { trip: Trip }) {
         </nav>
 
         <section id="days" className="days-section" aria-labelledby="days-title">
-          <div className="section-heading"><div><p className="section-kicker">5 DAYS IN OKINAWA</p><h2 id="days-title">五日行程</h2></div><p>展開日期查看完整資訊</p></div>
+          <div className="section-heading"><div><p className="section-kicker">5 DAYS IN OKINAWA</p><h2 id="days-title">五日行程</h2></div></div>
           <div className="day-list">
             {trip.days.map((day) => (
-              <details className={`day-card ${activeDay?.day === day.day ? 'is-today' : ''}`} key={day.day} open={activeDay?.day === day.day}>
-                <summary>
+              <article
+                className={`day-card ${activeDay?.day === day.day ? 'is-today' : ''} ${openDays.includes(day.day) ? 'is-open' : ''}`}
+                key={day.day}
+              >
+                <button
+                  className="day-summary"
+                  type="button"
+                  aria-expanded={openDays.includes(day.day)}
+                  aria-controls={`day-panel-${day.day}`}
+                  onClick={() => updateOpenDay(day.day, !openDays.includes(day.day))}
+                >
                   <div className="day-number"><span>DAY</span><strong>{day.day}</strong></div>
                   <div className="day-date"><strong>{day.date}</strong><span>星期{day.weekday}</span></div>
                   <div className="day-copy"><h3>{day.theme}</h3><p>{day.stops.length} 個行程 · {day.lodging}</p></div>
                   <span className="expand-label">展開</span>
-                </summary>
-                <div className="timeline">
-                  {day.stops.map((stop, index) => (
-                    <article className={stop.important ? 'important-stop' : ''} key={`${stop.time}-${stop.name}-${index}`}>
-                      <time>{stop.time}</time>
-                      <div className="stop-copy">
-                        <div className="stop-title"><h4>{stop.name}</h4>{stop.badge && <span>{stop.badge}</span>}</div>
-                        {stop.nameJa && <p className="japanese-name">{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}
-                        {stop.navigationName && <button className="copy-button" type="button" onClick={() => copyNavigation(stop.navigationName!)}>複製導航名稱</button>}
-                      </div>
-                    </article>
-                  ))}
+                </button>
+                <div className="day-content" id={`day-panel-${day.day}`} aria-hidden={!openDays.includes(day.day)}>
+                  <div className="day-content-inner">
+                    <div className="timeline">
+                      {day.stops.map((stop, index) => (
+                        <article className={stop.important ? 'important-stop' : ''} key={`${stop.time}-${stop.name}-${index}`}>
+                          <time>{stop.time}</time>
+                          <div className="stop-copy">
+                            <div className="stop-title"><h4>{highlightFirstMentions(stop.name, stop.highlightTerms ?? [], new Set())}</h4>{stop.badge && <span>{stop.badge}</span>}</div>
+                            {stop.nameJa && <p className="japanese-name">{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}
+                            {stop.navigationName && <button className="copy-button" type="button" onClick={() => copyNavigation(stop.navigationName!)}>複製導航名稱</button>}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                    {ownerMode && day.privateNotes.length > 0 && (
+                      <section className="private-notes" aria-label={`Day ${day.day} 我看的備忘錄`}>
+                        <div className="private-heading"><span>只在我的模式顯示</span><h4>我看的備忘錄</h4></div>
+                        <PrivateNotesList day={day} />
+                      </section>
+                    )}
+                  </div>
                 </div>
-                {ownerMode && day.privateNotes.length > 0 && (
-                  <section className="private-notes" aria-label={`Day ${day.day} 我看的備忘錄`}>
-                    <div className="private-heading"><span>只在我的模式顯示</span><h4>我看的備忘錄</h4></div>
-                    <div className="private-list">{day.privateNotes.map((note, index) => <article key={`${note.situation}-${index}`}><strong>{note.situation}</strong><p>{note.action}</p></article>)}</div>
-                  </section>
-                )}
-              </details>
+              </article>
             ))}
           </div>
         </section>
 
-        <section id="lodging" className="content-section"><div className="section-heading"><div><p className="section-kicker">STAY</p><h2>住宿資訊</h2></div></div><div className="info-grid">{trip.lodging.map((stay) => <article className="info-card" key={stay.nights}><strong>{stay.nights}</strong><h3>{stay.name}</h3><p>{stay.detail}</p></article>)}</div></section>
+        <section id="lodging" className="content-section">
+          <div className="section-heading"><div><p className="section-kicker">STAY</p><h2>住宿資訊</h2></div></div>
+          <div className="info-grid">
+            {trip.lodging.map((stay) => (
+              <article className="info-card" key={stay.nights}>
+                <strong>{stay.nights}</strong><h3>{stay.name}</h3>
+                <dl className="lodging-details">
+                  <div><dt>地址</dt><dd>{stay.address}</dd></div>
+                  <div><dt>電話</dt><dd><a href={`tel:${stay.phone.replaceAll(' ', '')}`}>{stay.phone}</a></dd></div>
+                  <div><dt>Mapcode</dt><dd><b>{stay.mapcode}</b><button className="copy-button" type="button" onClick={() => copyNavigation(stay.mapcode)}>複製</button></dd></div>
+                  <div>
+                    <dt>停車</dt>
+                    <dd>
+                      <ol className="parking-list">
+                        {stay.parking.map((parking) => (
+                          <li key={parking.name}>
+                            <span>{parking.name}</span>
+                            {parking.mapcode && <span><b>{parking.mapcode}</b><button className="copy-button" type="button" onClick={() => copyNavigation(parking.mapcode!)}>複製</button></span>}
+                          </li>
+                        ))}
+                      </ol>
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
+        </section>
         <section id="reminders" className="reminder-card"><p className="section-kicker">DON&apos;T FORGET</p><h2>重要提醒</h2><ul>{trip.importantReminders.map((reminder) => <li key={reminder}>{reminder}</li>)}</ul></section>
         <section className="pending-grid">
           <article><span>車</span><div><h3>自駕資訊</h3><p>租車公司、地址、電話與加油資訊待補。</p></div></article>
           <article><span>SOS</span><div><h3>緊急資訊</h3><p>保險、同行聯絡人與緊急電話待補。</p></div></article>
         </section>
-        <footer><strong>OKINAWA · 2026</strong><a href="./booklet/">B5 小冊預覽 →</a><span>更新：{trip.lastUpdated}</span></footer>
+        <footer><strong>OKINAWA · 2026</strong><a href="./booklet/">小冊閱讀 →</a><span>更新：{trip.lastUpdated}</span></footer>
       </div>
     </>
   );

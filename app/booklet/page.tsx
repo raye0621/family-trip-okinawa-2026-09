@@ -1,6 +1,19 @@
 import { trip } from '../../data/trip';
 import './booklet.css';
 
+function highlightTerms(text: string, terms: string[]) {
+  if (!terms.length) return text;
+
+  const escapedTerms = terms
+    .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'g');
+
+  return text.split(pattern).map((part, index) => (
+    terms.includes(part) ? <span className="name-highlight" key={`${part}-${index}`}>{part}</span> : part
+  ));
+}
+
 export default function BookletPage() {
   return (
     <main className="booklet">
@@ -35,7 +48,7 @@ export default function BookletPage() {
           </header>
           {day.stops.length ? (
             <div className="book-timeline">
-              {day.stops.map((stop) => <article key={`${stop.time}-${stop.name}`}><time>{stop.time}</time><div><h3>{stop.name}</h3>{stop.nameJa && <p>{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}</div></article>)}
+              {day.stops.map((stop) => <article className={stop.important ? 'important-stop' : ''} key={`${stop.time}-${stop.name}`}><time>{stop.time}</time><div><h3>{highlightTerms(stop.name, stop.highlightTerms ?? [])}</h3>{stop.nameJa && <p>{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}</div></article>)}
             </div>
           ) : (
             <div className="empty-content"><span>〰 〰 〰</span><h3>行程內容待匯入</h3><p>收到既有旅行資料後，這一頁會自動排成適合閱讀的每日版面。</p></div>
