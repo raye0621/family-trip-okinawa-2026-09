@@ -70,7 +70,7 @@ export function TripApp({ trip }: { trip: Trip }) {
     () => previewDay ? trip.days.find((day) => day.day === previewDay) : trip.days.find((day) => day.isoDate === today),
     [previewDay, today, trip.days],
   );
-  const [openDays, setOpenDays] = useState<number[]>(() => activeDay ? [activeDay.day] : []);
+  const [openDays, setOpenDays] = useState<number[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
