@@ -44,7 +44,6 @@ a { color:inherit; text-decoration:none; }
 .overview-cta:hover { translate:0 -2px; background:#fff; box-shadow:0 8px 20px rgba(9,72,84,.1); }
 .overview-cta:focus-visible { outline:3px solid rgba(15,131,153,.25); outline-offset:3px; }
 .overview-cta span { color:var(--coral); font-size:17px; line-height:1; }
-.overview-meta { display:flex; gap:9px 18px; margin-top:22px; padding-top:13px; border-top:1px solid rgba(24,52,58,.08); color:#829194; font-size:10px; font-weight:700; letter-spacing:.04em; }
 .today-overview.complete::after { background:rgba(239,115,95,.18); }
 .section-heading h2,.info-card h2 { margin:0; font-size:22px; letter-spacing:-.02em; }
 .section-heading>p,.info-card>p:not(.section-kicker) { margin:7px 0 0; color:var(--muted); font-size:14px; line-height:1.65; }
@@ -114,7 +113,6 @@ footer a { padding:7px 10px; border-radius:999px; color:var(--sea); background:#
   .overview-places { margin-top:18px; font-size:13px; }
   .overview-places li:not(:last-child)::after { margin:0 8px; }
   .overview-cta { width:100%; margin-top:16px; }
-  .overview-meta { flex-wrap:wrap; margin-top:18px; }
   .quick-grid { grid-template-columns:1fr 1fr; }
   .day-summary { grid-template-columns:52px 62px 1fr; gap:11px; padding:14px; }
   .day-number { width:49px; height:49px; }

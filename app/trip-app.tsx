@@ -150,7 +150,6 @@ export function TripApp({ trip }: { trip: Trip }) {
             {overviewDay.summaryPlaces.map((place) => <li key={place}>{place}</li>)}
           </ul>
           <button className="overview-cta" type="button" onClick={showOverviewDay}>{overviewCta}<span aria-hidden="true">→</span></button>
-          <div className="overview-meta"><span>版本 {buildVersion}</span></div>
         </section>
 
         <nav className="quick-grid" aria-label="旅行資訊快速入口">
@@ -238,7 +237,7 @@ export function TripApp({ trip }: { trip: Trip }) {
           <article><span>車</span><div><h3>自駕資訊</h3><p>租車公司、地址、電話與加油資訊待補。</p></div></article>
           <article><span>SOS</span><div><h3>緊急資訊</h3><p>保險、同行聯絡人與緊急電話待補。</p></div></article>
         </section>
-        <footer><strong>OKINAWA · 2026</strong><a href="./booklet/">小冊閱讀 →</a><span>更新：{trip.lastUpdated}</span></footer>
+        <footer><strong>OKINAWA · 2026</strong><a href="./booklet/">小冊閱讀 →</a><span>版本 {buildVersion}</span></footer>
       </div>
     </>
   );
