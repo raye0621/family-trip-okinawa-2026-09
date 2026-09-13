@@ -14,7 +14,22 @@ a { color:inherit; text-decoration:none; }
 .install-button { border:0; color:#fff; background:var(--sea); }
 .dismiss-button { border:1px solid var(--line); color:var(--muted); background:transparent; }
 .install-prompt-actions button:focus-visible { outline:3px solid rgba(15,131,153,.24); outline-offset:2px; }
-.copy-toast { position:fixed; z-index:30; left:50%; bottom:24px; translate:-50% 0; width:max-content; max-width:calc(100% - 28px); padding:11px 16px; border-radius:999px; color:#fff; background:#18343a; box-shadow:0 8px 30px rgba(0,0,0,.24); font-size:13px; font-weight:800; }
+.copy-toast { position:fixed; z-index:70; left:50%; bottom:24px; translate:-50% 0; width:max-content; max-width:calc(100% - 28px); padding:11px 16px; border-radius:999px; color:#fff; background:#18343a; box-shadow:0 8px 30px rgba(0,0,0,.24); font-size:13px; font-weight:800; }
+.inline-guide-link { display:inline; margin:0; padding:0; border:0; color:#b64e3d; background:transparent; font:inherit; font-weight:inherit; text-align:inherit; text-decoration:underline; text-decoration-color:rgba(182,78,61,.4); text-decoration-thickness:1px; text-underline-offset:3px; cursor:pointer; }
+.inline-guide-link:focus-visible,.route-copy-term:focus-visible { outline:3px solid rgba(239,115,95,.22); outline-offset:3px; border-radius:3px; }
+.route-modal-backdrop { display:grid; position:fixed; z-index:60; inset:0; place-items:center; padding:18px; background:rgba(10,37,42,.62); backdrop-filter:blur(5px); }
+.route-modal { position:relative; width:min(100%,520px); max-height:min(88dvh,760px); overflow-y:auto; padding:27px 22px 20px; border:1px solid rgba(255,255,255,.55); border-radius:25px; background:#fbf8ef; box-shadow:0 24px 80px rgba(0,0,0,.32); overscroll-behavior:contain; }
+.route-modal-close { display:grid; position:absolute; top:13px; right:13px; place-items:center; width:35px; height:35px; padding:0; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:#fff; font-size:24px; line-height:1; cursor:pointer; }
+.route-modal h2 { max-width:calc(100% - 36px); margin:0; font-size:22px; letter-spacing:-.03em; }
+.route-modal-intro { margin:8px 0 15px; color:var(--muted); font-size:12px; font-weight:700; }
+.route-steps { display:grid; gap:9px; margin:0; padding:0; list-style:none; }
+.route-steps li { display:grid; grid-template-columns:34px 1fr; gap:10px; padding:13px; border:1px solid rgba(24,52,58,.09); border-radius:16px; background:#fff; }
+.route-number { display:grid; place-items:center; align-self:start; width:32px; height:32px; border-radius:10px; color:#fff; background:var(--sea); font-size:16px; font-weight:900; }
+.route-steps h3 { display:flex; flex-wrap:wrap; align-items:baseline; gap:2px; margin:1px 0 5px; font-size:14px; }
+.route-steps h3 span { color:var(--ink); }
+.route-steps p { margin:0; color:var(--muted); font-size:12px; line-height:1.65; }
+.route-copy-term { display:inline; margin:0; padding:0; border:0; color:#b64e3d; background:transparent; font:inherit; font-weight:900; text-decoration:underline; text-decoration-color:rgba(182,78,61,.35); text-underline-offset:3px; cursor:pointer; }
+.route-copy-hint { margin:13px 0 0; color:#93617a; font-size:10px; font-weight:800; text-align:center; letter-spacing:.05em; }
 .owner-bar { display:flex; position:sticky; z-index:15; top:0; align-items:center; justify-content:center; gap:18px; min-height:40px; padding:7px 16px; color:#fff; background:#7b4961; font-size:12px; font-weight:800; }
 .owner-bar button { padding:5px 9px; border:1px solid rgba(255,255,255,.45); border-radius:999px; color:#fff; background:transparent; font:inherit; cursor:pointer; }
 .shell { width:min(100% - 32px,820px); margin-inline:auto; }
@@ -99,6 +114,11 @@ a { color:inherit; text-decoration:none; }
 footer { display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:48px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; letter-spacing:.08em; }
 footer a { padding:7px 10px; border-radius:999px; color:var(--sea); background:#fff; font-weight:800; }
 @media (max-width:640px) {
+  .route-modal-backdrop { align-items:end; padding:10px; padding-bottom:max(10px,env(safe-area-inset-bottom)); }
+  .route-modal { width:100%; max-height:90dvh; padding:24px 15px 16px; border-radius:24px; }
+  .route-modal-close { top:11px; right:11px; }
+  .route-steps li { grid-template-columns:31px 1fr; gap:9px; padding:11px; }
+  .route-number { width:29px; height:29px; }
   .install-prompt { grid-template-columns:auto 1fr; gap:9px 11px; top:9px; padding:11px; border-radius:18px; }
   .install-prompt img { width:44px; height:44px; border-radius:12px; }
   .install-prompt-actions { grid-column:1 / -1; }

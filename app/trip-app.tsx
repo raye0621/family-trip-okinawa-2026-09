@@ -28,22 +28,32 @@ function daysBetween(from: string, to: string) {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / dayInMilliseconds);
 }
 
-function highlightFirstMentions(text: string, terms: string[], seen: Set<string>) {
-  if (!terms.length) return text;
+function highlightFirstMentions(text: string, terms: string[], seen: Set<string>, showKokusaiGuide?: () => void) {
+  const matchedTerms = showKokusaiGuide && text.includes('國際通')
+    ? [...new Set([...terms, '國際通'])]
+    : terms;
+  if (!matchedTerms.length) return text;
 
-  const escapedTerms = terms
+  const escapedTerms = matchedTerms
     .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .sort((a, b) => b.length - a.length);
   const pattern = new RegExp(`(${escapedTerms.join('|')})`, 'g');
 
   return text.split(pattern).map((part, index) => {
-    if (!terms.includes(part) || seen.has(part)) return part;
+    if (!matchedTerms.includes(part) || seen.has(part)) return part;
     seen.add(part);
+    if (part === '國際通' && showKokusaiGuide) {
+      return <button className="inline-guide-link" type="button" onClick={showKokusaiGuide} key={`${part}-${index}`}>{part}</button>;
+    }
     return <span className="name-highlight" key={`${part}-${index}`}>{part}</span>;
   });
 }
 
-function PrivateNotesList({ day }: { day: Trip['days'][number] }) {
+function CopyableRouteTerm({ children, onCopy }: { children: string; onCopy: (value: string) => void }) {
+  return <button className="route-copy-term" type="button" onClick={() => onCopy(children)}>{children}</button>;
+}
+
+function PrivateNotesList({ day, onShowKokusaiGuide }: { day: Trip['days'][number]; onShowKokusaiGuide: () => void }) {
   const seen = new Set<string>();
   const terms = day.privateHighlightTerms ?? [];
 
@@ -51,8 +61,8 @@ function PrivateNotesList({ day }: { day: Trip['days'][number] }) {
     <div className="private-list">
       {day.privateNotes.map((note, index) => (
         <article key={`${note.situation}-${index}`}>
-          <strong>{highlightFirstMentions(note.situation, terms, seen)}</strong>
-          <p>{highlightFirstMentions(note.action, terms, seen)}</p>
+          <strong>{highlightFirstMentions(note.situation, terms, seen, onShowKokusaiGuide)}</strong>
+          <p>{highlightFirstMentions(note.action, terms, seen, onShowKokusaiGuide)}</p>
         </article>
       ))}
     </div>
@@ -63,6 +73,7 @@ export function TripApp({ trip }: { trip: Trip }) {
   const [ownerMode, setOwnerMode] = useState(false);
   const [copied, setCopied] = useState('');
   const [previewDay, setPreviewDay] = useState<number | null>(null);
+  const [showKokusaiGuide, setShowKokusaiGuide] = useState(false);
   const buildVersion = process.env.NEXT_PUBLIC_BUILD_VERSION ?? trip.version;
 
   const today = getDateKey(new Date());
@@ -86,6 +97,20 @@ export function TripApp({ trip }: { trip: Trip }) {
     }, 0);
     return () => window.clearTimeout(syncMode);
   }, [trip.days]);
+
+  useEffect(() => {
+    if (!showKokusaiGuide) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowKokusaiGuide(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [showKokusaiGuide]);
 
   const tripEnded = today > trip.days[trip.days.length - 1].isoDate;
   const overviewDay = activeDay ?? (tripEnded ? trip.days[trip.days.length - 1] : trip.days[0]);
@@ -129,6 +154,38 @@ export function TripApp({ trip }: { trip: Trip }) {
       {copied && <div className="copy-toast" role="status">已複製：{copied}</div>}
       {ownerMode && <div className="owner-bar"><span>我的模式 · 顯示個人備忘錄</span><button type="button" onClick={leaveOwnerMode}>切回家人模式</button></div>}
 
+      {showKokusaiGuide && (
+        <div className="route-modal-backdrop" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setShowKokusaiGuide(false);
+        }}>
+          <section className="route-modal" role="dialog" aria-modal="true" aria-labelledby="route-modal-title">
+            <button className="route-modal-close" type="button" aria-label="關閉國際通路線導覽" onClick={() => setShowKokusaiGuide(false)}>×</button>
+            <p className="section-kicker">KOKUSAI STREET WALK</p>
+            <h2 id="route-modal-title">國際通逛街建議路線</h2>
+            <p className="route-modal-intro">國際通逛街路線導覽：</p>
+            <ol className="route-steps">
+              <li>
+                <span className="route-number">①</span>
+                <div><h3><CopyableRouteTerm onCopy={copyNavigation}>壺屋通</CopyableRouteTerm><span>｜陶器老街</span></h3><p>從住宿往西走，逛壺屋燒、器皿、風獅爺與特色小店。</p></div>
+              </li>
+              <li>
+                <span className="route-number">②</span>
+                <div><h3>市場區<span>｜老那霸商店街</span></h3><p>進入 <CopyableRouteTerm onCopy={copyNavigation}>平和通り商店街</CopyableRouteTerm>、<CopyableRouteTerm onCopy={copyNavigation}>第一牧志公設市場</CopyableRouteTerm>、<CopyableRouteTerm onCopy={copyNavigation}>市場本通</CopyableRouteTerm>，雜貨與傳統市場。</p></div>
+              </li>
+              <li>
+                <span className="route-number">③</span>
+                <div><h3><CopyableRouteTerm onCopy={copyNavigation}>むつみ橋</CopyableRouteTerm><span>｜接回國際通</span></h3><p>從市場區一路往北，最後由 <CopyableRouteTerm onCopy={copyNavigation}>むつみ橋</CopyableRouteTerm> 附近接回國際通主街。</p></div>
+              </li>
+              <li>
+                <span className="route-number">④</span>
+                <div><h3>國際通<span>｜集中購物</span></h3><p>往縣廳前方向逛，<CopyableRouteTerm onCopy={copyNavigation}>鳥貴族</CopyableRouteTerm> 在接近終點處。逛累或買太多時，可從國際通西段直接搭計程車回住宿。</p></div>
+              </li>
+            </ol>
+            <p className="route-copy-hint">點紅色地名即可複製</p>
+          </section>
+        </div>
+      )}
+
       <section className="hero">
         <div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" />
         <div className="shell hero-inner">
@@ -147,7 +204,7 @@ export function TripApp({ trip }: { trip: Trip }) {
           <h2 id="overview-title">{overviewTitle}</h2>
           {overviewIntro && <p className="overview-intro">{overviewIntro}</p>}
           <ul className="overview-places" aria-label="今日主要地點">
-            {overviewDay.summaryPlaces.map((place) => <li key={place}>{place}</li>)}
+            {overviewDay.summaryPlaces.map((place) => <li key={place}>{place === '國際通' ? <button className="inline-guide-link" type="button" onClick={() => setShowKokusaiGuide(true)}>{place}</button> : place}</li>)}
           </ul>
           <button className="overview-cta" type="button" onClick={showOverviewDay}>{overviewCta}<span aria-hidden="true">→</span></button>
         </section>
@@ -184,7 +241,7 @@ export function TripApp({ trip }: { trip: Trip }) {
                         <article className={stop.important ? 'important-stop' : ''} key={`${stop.time}-${stop.name}-${index}`}>
                           <time>{stop.time}</time>
                           <div className="stop-copy">
-                            <div className="stop-title"><h4>{highlightFirstMentions(stop.name, stop.highlightTerms ?? [], new Set())}</h4>{stop.badge && <span className="stop-badge">{stop.badge}</span>}</div>
+                            <div className="stop-title"><h4>{highlightFirstMentions(stop.name, stop.highlightTerms ?? [], new Set(), () => setShowKokusaiGuide(true))}</h4>{stop.badge && <span className="stop-badge">{stop.badge}</span>}</div>
                             {stop.nameJa && <p className="japanese-name">{stop.nameJa}</p>}{stop.note && <p>{stop.note}</p>}
                             {stop.navigationName && <button className="copy-button" type="button" onClick={() => copyNavigation(stop.navigationName!)}>複製導航名稱</button>}
                           </div>
@@ -194,7 +251,7 @@ export function TripApp({ trip }: { trip: Trip }) {
                     {ownerMode && day.privateNotes.length > 0 && (
                       <section className="private-notes" aria-label={`Day ${day.day} 我看的備忘錄`}>
                         <div className="private-heading"><span>只在我的模式顯示</span><h4>我看的備忘錄</h4></div>
-                        <PrivateNotesList day={day} />
+                        <PrivateNotesList day={day} onShowKokusaiGuide={() => setShowKokusaiGuide(true)} />
                       </section>
                     )}
                   </div>
@@ -232,7 +289,7 @@ export function TripApp({ trip }: { trip: Trip }) {
             ))}
           </div>
         </section>
-        <section id="reminders" className="reminder-card"><p className="section-kicker">DON&apos;T FORGET</p><h2>重要提醒</h2><ul>{trip.importantReminders.map((reminder) => <li key={reminder}>{reminder}</li>)}</ul></section>
+        <section id="reminders" className="reminder-card"><p className="section-kicker">DON&apos;T FORGET</p><h2>重要提醒</h2><ul>{trip.importantReminders.map((reminder) => <li key={reminder}>{highlightFirstMentions(reminder, [], new Set(), () => setShowKokusaiGuide(true))}</li>)}</ul></section>
         <section className="pending-grid">
           <article><span>車</span><div><h3>自駕資訊</h3><p>租車公司、地址、電話與加油資訊待補。</p></div></article>
           <article><span>SOS</span><div><h3>緊急資訊</h3><p>保險、同行聯絡人與緊急電話待補。</p></div></article>
