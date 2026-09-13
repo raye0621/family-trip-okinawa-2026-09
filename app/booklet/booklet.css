@@ -30,8 +30,9 @@
   .back-to-app { display:none; }
 }
 @media screen and (max-width:760px) {
-  .booklet { align-items:stretch; gap:0; height:100dvh; min-height:0; padding:0; overflow-y:hidden; scroll-padding-inline:0; overscroll-behavior-y:none; }
-  .book-page { flex-basis:100vw; width:100vw; height:100dvh; min-height:100dvh; max-height:100dvh; padding:11vw 9vw; overflow-y:auto; scroll-snap-align:start; overscroll-behavior-y:contain; }
-  .cover { overflow-y:hidden; }
+  .booklet { display:block; min-height:100dvh; padding:0; overflow:visible; background:#fbf8ef; scroll-snap-type:none; overscroll-behavior:auto; }
+  .book-page { width:100%; min-height:100vh; min-height:100svh; height:auto; max-height:none; padding:max(44px,calc(env(safe-area-inset-top) + 28px)) 9vw max(88px,calc(env(safe-area-inset-bottom) + 64px)); overflow:visible; box-shadow:none; scroll-snap-align:none; }
+  .cover { min-height:100vh; min-height:100svh; overflow:hidden; }
   .cover h1 { font-size:12vw; }
+  .back-to-app { right:16px; bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px)); }
 }
