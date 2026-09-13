@@ -63,6 +63,7 @@ export function TripApp({ trip }: { trip: Trip }) {
   const [ownerMode, setOwnerMode] = useState(false);
   const [copied, setCopied] = useState('');
   const [previewDay, setPreviewDay] = useState<number | null>(null);
+  const buildVersion = process.env.NEXT_PUBLIC_BUILD_VERSION ?? trip.version;
 
   const today = getDateKey(new Date());
   const activeDay = useMemo(
@@ -149,7 +150,7 @@ export function TripApp({ trip }: { trip: Trip }) {
             {overviewDay.summaryPlaces.map((place) => <li key={place}>{place}</li>)}
           </ul>
           <button className="overview-cta" type="button" onClick={showOverviewDay}>{overviewCta}<span aria-hidden="true">→</span></button>
-          {ownerMode && <div className="overview-meta"><span>{trip.version}</span><span>最後更新 {trip.lastUpdated}</span></div>}
+          <div className="overview-meta"><span>版本 {buildVersion}</span></div>
         </section>
 
         <nav className="quick-grid" aria-label="旅行資訊快速入口">
