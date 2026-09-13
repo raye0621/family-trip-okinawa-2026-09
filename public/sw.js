@@ -1,4 +1,4 @@
-const CACHE_NAME = 'okinawa-family-trip-v11';
+const CACHE_NAME = 'okinawa-family-trip-v12';
 const SCOPE = self.registration.scope;
 const APP_SHELL = [
   '',
